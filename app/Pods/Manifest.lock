@@ -1,0 +1,50 @@
+PODS:
+  - Alamofire (4.0.0)
+  - NVActivityIndicatorView (2.12)
+  - SimpleAnimation (0.1.3)
+  - SwiftHEXColors (1.0.4)
+  - SwiftyJSON (2.3.2)
+
+DEPENDENCIES:
+  - Alamofire (from `https://github.com/Alamofire/Alamofire.git`)
+  - NVActivityIndicatorView (from `https://github.com/ninjaprox/NVActivityIndicatorView.git`, branch `swift3`)
+  - SimpleAnimation
+  - SwiftHEXColors (from `https://github.com/thii/SwiftHEXColors.git`, branch `swift-3.0`)
+  - SwiftyJSON (from `https://github.com/IBM-Swift/SwiftyJSON.git`)
+
+EXTERNAL SOURCES:
+  Alamofire:
+    :git: https://github.com/Alamofire/Alamofire.git
+  NVActivityIndicatorView:
+    :branch: swift3
+    :git: https://github.com/ninjaprox/NVActivityIndicatorView.git
+  SwiftHEXColors:
+    :branch: swift-3.0
+    :git: https://github.com/thii/SwiftHEXColors.git
+  SwiftyJSON:
+    :git: https://github.com/IBM-Swift/SwiftyJSON.git
+
+CHECKOUT OPTIONS:
+  Alamofire:
+    :commit: 0ac38d7e312e87aeea608d384e44401f3d8a6b3d
+    :git: https://github.com/Alamofire/Alamofire.git
+  NVActivityIndicatorView:
+    :commit: 70f02ef79123d38fc5820e4df5c90458f79870f2
+    :git: https://github.com/ninjaprox/NVActivityIndicatorView.git
+  SwiftHEXColors:
+    :commit: f4b98e298528fd9d88b10ab55e806d29ce497daa
+    :git: https://github.com/thii/SwiftHEXColors.git
+  SwiftyJSON:
+    :commit: 73b523a107b798021ca9af74b5f7c20e435c8809
+    :git: https://github.com/IBM-Swift/SwiftyJSON.git
+
+SPEC CHECKSUMS:
+  Alamofire: fef59f00388f267e52d9b432aa5d93dc97190f14
+  NVActivityIndicatorView: de8be03826726ad99cdfacf7fe09e88cbfeef911
+  SimpleAnimation: 3d56984f3852a3199d92137b265349d43f3b60f5
+  SwiftHEXColors: b0ecc7bd83a1aa2e1956f9ba51f55ebb2bcf86ef
+  SwiftyJSON: 04ccea08915aa0109039157c7974cf0298da292a
+
+PODFILE CHECKSUM: bd32e14ace7932393b77e0904a14c7066d7f5238
+
+COCOAPODS: 1.0.1
