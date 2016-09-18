@@ -1,0 +1,20 @@
+[
+  { "name": "Royalton New York", "hotness": 1 }, 
+  { "name": "The Kimpton Muse Hotel", "hotness": 19 }, 
+  { "name": "Broadway @ Times Square Hotel", "hotness": 21 }, 
+  { "name": "Room Mate Grace Hotel", "hotness": 7 }, 
+  { "name": "Hotel St. James", "hotness": 17 }, 
+  { "name": "DoubleTree Suites by Hilton Hotel", "hotness": 14 }, 
+  { "name": "Night Theater District", "hotness": 16 }, 
+  { "name": "Millennium Broadway Hotel New York", "hotness": 15 }, 
+  { "name": "AKA Times Square", "hotness": 10 }, 
+  { "name": "Times Square", "hotness": 7 }, 
+  { "name": "Hotel Mela", "hotness": 7 }, 
+  { "name": "The Chatwal, a Luxury Collection", "hotness": 16 }, 
+  { "name": "Cassa Hotel 45th Street New York", "hotness": 1 }, 
+  { "name": "The Hotel @ Times Square", "hotness": 11 }, 
+  { "name": "Casablanca Hotel Times Square", "hotness": 13 }, 
+  { "name": "City Club Hotel", "hotness": 22 }, 
+  { "name": "The Iroquois New York", "hotness": 1 }, 
+  { "name": "Club Quarters Hotel, Midtown", "hotness":  4}
+]

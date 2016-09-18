@@ -169,7 +169,7 @@ let getNearByPlaces = (lat, lng, number) => {
     qs: {
       location: lat + ',' + lng,
       radius: 1000,
-      key: 'AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI'
+      key: 'AIzaSyAZ1dMs6O4TX3Tc3L1rFB8-u50ZGm-8VGk'
     }
   })
   .then((res) => {
@@ -181,7 +181,7 @@ let getNearByPlaces = (lat, lng, number) => {
 
       if (obj.photos !== undefined) {
         reference = obj.photos[0].photo_reference
-        url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + reference + "&sensor=false&key=AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI"
+        url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + reference + "&sensor=false&key=AIzaSyAZ1dMs6O4TX3Tc3L1rFB8-u50ZGm-8VGk"
       }
 
       return {
