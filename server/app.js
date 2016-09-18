@@ -56,8 +56,8 @@ app.get('/addPath', (req, res) => {
 
 app.get('/getArea', (req, res) => {
   let lat = req.query.lat
-  let long = req.query.long
-  return Promise.resolve(getClosestSpots(lat, long, 20))
+  let lng = req.query.lng
+  return Promise.resolve(getNearByPlaces(lat, lng, 20))
   .then((placeIds) => {
     let placeQueries = []
     placeIds.forEach((placeId) => {
@@ -183,9 +183,40 @@ let getPathCount = (beginId, endId) => {
   })
 }
 
-let getClosestSpots = (lat, long, num) => {
-  let vals = ['2', '2', '3', '4']
-  return vals.slice(0, num);
+function getNearByPlaces(lat, lng, number){
+  httpRequest({
+    method: 'GET',
+    headers: {
+      'Accept':'application/json'
+    },
+    url: 'https://maps.googleapis.com/maps/api/place/nearbysearch/json',
+    rankby: 'distance',
+    qs: {
+      location: lat + ',' + lng,
+      radius: 500,
+      key: 'AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI'
+    }
+  }, function(err, res, body) {
+    if(err) {
+      console.log(err)
+      res.status(500).send(false)
+    }
+    body = JSON.parse(body)
+    var result = body.results.map(function(obj){
+      var url;
+      if(obj.photos){
+        var urlattr= obj.photos[0].html_attributions;
+        url = urlattr.splice(urlattr.slice(urlattr.indexOf('http'), urlattr.indexOf('">')));
+      }
+      return {
+        id: obj.id,
+        location: obj.geometry.location,
+        name: obj.name,
+        photoUrl: url
+      }
+    });
+    return result.splice(0, number);
+  });
 }
 
 app.listen(7070, (err) => {
