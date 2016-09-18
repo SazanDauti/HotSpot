@@ -188,7 +188,7 @@ let getClosestSpots = (lat, long, num) => {
   return vals.slice(0, num);
 }
 
-app.listen(8080, (err) => {
+app.listen(7070, (err) => {
   if (err) console.error(err)
-  console.log('Listening on port 8080')
+  console.log('Listening on port 7070')
 })
