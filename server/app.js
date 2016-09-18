@@ -1,10 +1,11 @@
 'use strict'
 
-let express    = require('express')
-let bodyParser = require('body-parser')
-let mongoose   = require('mongoose')
-let request    = require('request-promise')
-let uuid       = require('node-uuid');
+let express     = require('express')
+let bodyParser  = require('body-parser')
+let mongoose    = require('mongoose')
+let request     = require('request-promise')
+let uuid        = require('node-uuid')
+let httpRequest = require('request')
 
 let Place = require('./models/place.js')
 let User  = require('./models/user.js')
@@ -23,45 +24,14 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname, 'public/index.html')
 })
 
-app.get('/addPlace', (req, res) => {
-  let id = req.query.id
-  let name = req.query.name
-  let image = req.query.image
-
-  let doc = new Place({ _id: id, name: name, image: image, lat: 0, long: 0 })
-  doc.save()
-  res.status(200).send('done')
-})
-
-app.get('/addVisit', (req, res) => {
-  let id = uuid.v1()
-  let place = req.query.place
-  let user = req.query.user
-
-  let doc = new Visit({ _id: id, place: place, user: user })
-  doc.save()
-  res.status(200).send('done')
-})
-
-app.get('/addPath', (req, res) => {
-  let id = uuid.v1()
-  let begin = req.query.begin
-  let end = req.query.end
-  let user = req.query.user
-
-  let doc = new Path({ _id: id, begin: begin, end: end, user: user })
-  doc.save()
-  res.status(200).send('done')
-})
-
 app.get('/getArea', (req, res) => {
   let lat = req.query.lat
-  let lng = req.query.lng
-  return Promise.resolve(getNearByPlaces(lat, lng, 20))
-  .then((placeIds) => {
+  let long = req.query.long
+  return Promise.resolve(getNearByPlaces(lat, long, 100))
+  .then((places) => {
     let placeQueries = []
-    placeIds.forEach((placeId) => {
-      placeQueries.push(Promise.resolve(getPlaceInfo(placeId, placeIds)))
+    places.forEach((place) => {
+      placeQueries.push(Promise.resolve(getPlaceInfo(place, places)))
     })
     return Promise.all(placeQueries)
   })
@@ -80,10 +50,11 @@ app.get('/pingData', (req, res) => {
   let long = req.query.long
   let begin = ''
   let end = ''
-  return Promise.resolve(getClosestSpots(lat, long, 1))
-  .then((placeId) => {
-    end = placeId
-    let doc = new Visit({ _id: uuid.v1(), place: placeId, user: user })
+  return Promise.resolve(getNearByPlaces(lat, long, 1))
+  .then((place) => {
+    place = place[0]
+    end = place.id
+    let doc = new Visit({ _id: uuid.v1(), place: place.id, user: user })
     return doc.save()
   })
   .then((resp) => {
@@ -118,13 +89,17 @@ app.get('/pingData', (req, res) => {
   })
 })
 
-let getPlaceInfo = (placeId, placeIds) => {
+let getPlaceInfo = (place, places) => {
   let obj = {}
-  return Place.findOne({ _id: placeId })
+  return Place.findOne({ _id: place.id })
   .then((placeInfo) => {
+    if (placeInfo == null) {
+      let item = new Place({ _id: place.id, name: place.name, image: place.photoUrl, lat: place.location.lat, long: place.location.lng })
+      item.save()
+      return 0
+    }
     obj = JSON.parse(JSON.stringify(placeInfo))
-    let timestamp = new Date(Date.now() - 1 * 60 * 60 * 1000)
-    return Visit.count({ place: placeInfo._id, time: { $gt: timestamp }})
+    return Visit.count({ place: placeInfo._id })
   })
   .then((hotness) => {
     obj.hotness = hotness
@@ -132,8 +107,8 @@ let getPlaceInfo = (placeId, placeIds) => {
   })
   .then((placeInfo) => {
     let pathQueries = []
-    placeIds.forEach((placeId) => {
-      pathQueries.push(Promise.resolve(getPathCount(placeInfo._id, placeId)))
+    places.forEach((place) => {
+      pathQueries.push(Promise.resolve(getPathCount(placeInfo._id, place.id)))
     })
     return Promise.all(pathQueries)
   })
@@ -171,11 +146,10 @@ let getEndPlaceInfo = (paths, endId) => {
 
 let getPathCount = (beginId, endId) => {
   let sum = 0
-  let timestamp = new Date(Date.now() - 1 * 60 * 60 * 1000)
-  return Path.count({ begin: beginId, end: endId, time: { $gt: timestamp } })
+  return Path.count({ begin: beginId, end: endId })
   .then((resp) => {
     sum = sum + resp
-    return Path.count({ begin: endId, end: beginId, time: { $gt: timestamp } })
+    return Path.count({ begin: endId, end: beginId })
   })
   .then((resp) => {
     sum = sum + resp
@@ -183,8 +157,8 @@ let getPathCount = (beginId, endId) => {
   })
 }
 
-function getNearByPlaces(lat, lng, number){
-  httpRequest({
+let getNearByPlaces = (lat, lng, number) => {
+  return request({
     method: 'GET',
     headers: {
       'Accept':'application/json'
@@ -196,18 +170,20 @@ function getNearByPlaces(lat, lng, number){
       radius: 500,
       key: 'AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI'
     }
-  }, function(err, res, body) {
-    if(err) {
-      console.log(err)
-      res.status(500).send(false)
-    }
-    body = JSON.parse(body)
+  })
+  .then((res) => {
+    let body = JSON.parse(res)
     var result = body.results.map(function(obj){
-      var url;
-      if(obj.photos){
-        var urlattr= obj.photos[0].html_attributions;
-        url = urlattr.splice(urlattr.slice(urlattr.indexOf('http'), urlattr.indexOf('">')));
+
+      var reference = ''
+      var url = ''
+
+      if (obj.photos !== undefined) {
+        console.log(obj.photos)
+        reference = obj.photos[0].photo_reference
+        url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + reference + "&sensor=false&key=AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI"
       }
+
       return {
         id: obj.id,
         location: obj.geometry.location,
@@ -215,8 +191,8 @@ function getNearByPlaces(lat, lng, number){
         photoUrl: url
       }
     });
-    return result.splice(0, number);
-  });
+    return result.splice(1, number + 1);
+  })
 }
 
 app.listen(7070, (err) => {

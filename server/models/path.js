@@ -6,8 +6,7 @@ let PathSchema = mongoose.Schema({
   _id: String,
   begin: String,
   end: String,
-  user: String,
-  time: { type: Date, default: Date.now }
+  user: String
 })
 
 module.exports = mongoose.model('Path', PathSchema, 'paths')
