@@ -24,26 +24,6 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname, 'public/index.html')
 })
 
-app.get('/getArea', (req, res) => {
-  let lat = req.query.lat
-  let long = req.query.long
-  return Promise.resolve(getNearByPlaces(lat, long, 100))
-  .then((places) => {
-    let placeQueries = []
-    places.forEach((place) => {
-      placeQueries.push(Promise.resolve(getPlaceInfo(place, places)))
-    })
-    return Promise.all(placeQueries)
-  })
-  .then((placeInfo) => {
-    res.status(200).json(placeInfo)
-  })
-  .catch((err) => {
-    console.error(err)
-    res.status(500).send(false)
-  })
-})
-
 app.get('/pingData', (req, res) => {
   let user = req.query.uid
   let lat = req.query.lat
@@ -89,13 +69,34 @@ app.get('/pingData', (req, res) => {
   })
 })
 
+app.get('/getArea', (req, res) => {
+  let lat = req.query.lat
+  let long = req.query.long
+  return Promise.resolve(getNearByPlaces(lat, long, 20))
+  .then((places) => {
+    let placeQueries = []
+    places.forEach((place) => {
+      placeQueries.push(Promise.resolve(getPlaceInfo(place, places)))
+    })
+    return Promise.all(placeQueries)
+  })
+  .then((placeInfo) => {
+    res.status(200).json(placeInfo)
+  })
+  .catch((err) => {
+    console.error(err)
+    res.status(500).send(false)
+  })
+})
+
 let getPlaceInfo = (place, places) => {
   let obj = {}
   return Place.findOne({ _id: place.id })
   .then((placeInfo) => {
-    if (placeInfo == null) {
+    if (placeInfo === null) {
       let item = new Place({ _id: place.id, name: place.name, image: place.photoUrl, lat: place.location.lat, long: place.location.lng })
       item.save()
+      obj = JSON.parse(JSON.stringify(place))
       return 0
     }
     obj = JSON.parse(JSON.stringify(placeInfo))
@@ -167,7 +168,7 @@ let getNearByPlaces = (lat, lng, number) => {
     rankby: 'distance',
     qs: {
       location: lat + ',' + lng,
-      radius: 500,
+      radius: 1000,
       key: 'AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI'
     }
   })
@@ -179,7 +180,6 @@ let getNearByPlaces = (lat, lng, number) => {
       var url = ''
 
       if (obj.photos !== undefined) {
-        console.log(obj.photos)
         reference = obj.photos[0].photo_reference
         url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + reference + "&sensor=false&key=AIzaSyBFhQbasg2vWSyfmS8zL4LdOUeCm4xofRI"
       }
